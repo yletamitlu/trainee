@@ -12,12 +12,12 @@ import (
 	statRepos "github.com/yletamitlu/trainee/internal/stat/repository"
 	statUcase "github.com/yletamitlu/trainee/internal/stat/usecase"
 	"log"
+	"os"
 )
 
 func main() {
-	//conn, err := sqlx.Connect("pgx",
-	//	"postgres://"+os.Getenv("DB_USER")+":statuser@localhost:5432/"+os.Getenv("DB_NAME"))
-	conn, err := sqlx.Connect("pgx", "user = statuser dbname = statdb")
+	conn, err := sqlx.Connect("pgx",
+		"postgres://"+os.Getenv("DB_USER")+":statuser@localhost:5432/"+os.Getenv("DB_NAME"))
 	if err != nil {
 		logrus.Info(err)
 	}
@@ -38,5 +38,5 @@ func main() {
 	statD.Configure(router)
 
 	fmt.Printf("Server started...")
-	log.Fatal(fasthttp.ListenAndServe(":5000", Use(router.Handler, PanicRecovering, SetHeaders, AccessLog)))
+	log.Fatal(fasthttp.ListenAndServe(":80", Use(router.Handler, PanicRecovering, SetHeaders, AccessLog)))
 }
