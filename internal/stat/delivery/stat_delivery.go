@@ -7,14 +7,17 @@ import (
 	"github.com/valyala/fasthttp"
 	"github.com/yletamitlu/trainee/internal/models"
 	"github.com/yletamitlu/trainee/internal/stat"
+	"github.com/yletamitlu/trainee/internal/validate"
 )
 
 type StatDelivery struct {
 	statUcase stat.StatUsecase
+	validServ validate.ValidationService
 }
 
 func NewStatDelivery(statUsecase stat.StatUsecase) *StatDelivery {
 	return &StatDelivery{
+		validServ: *validate.NewValidationService(),
 		statUcase: statUsecase,
 	}
 }
@@ -28,12 +31,21 @@ func (sd *StatDelivery) Configure(router *fasthttprouter.Router) {
 func (sd *StatDelivery) SaveStatisticHandler() fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
 		var data *models.Data
+		var predata map[string]interface{}
 
-		err := json.Unmarshal(ctx.Request.Body(), &data)
+		err := json.Unmarshal(ctx.Request.Body(), &predata)
 
+		err, message := sd.validServ.Validate(predata)
+		if err != nil {
+			logrus.Info(err, message)
+			sd.sendResponse(ctx, 500, message)
+			return
+		}
+
+		err = json.Unmarshal(ctx.Request.Body(), &data)
 		if err != nil {
 			logrus.Info(err)
-			sd.sendResponse(ctx, 500, "internal server error")
+			sd.sendResponse(ctx, 500, err)
 			return
 		}
 		err = sd.statUcase.AddNewStatistic(data)
