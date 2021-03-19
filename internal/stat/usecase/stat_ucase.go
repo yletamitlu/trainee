@@ -26,7 +26,7 @@ func (su *StatUcase) AddNewStatistic(data *models.Data) error {
 
 	if data.Views != 0 {
 		cpm := data.Cost / float64(data.Views)
-		data.Cpm = math.Round(cpm * 100) / 100
+		data.Cpm = (math.Round(cpm * 100) / 100 ) * 1000
 	} else {
 		data.Cpm = 0
 	}
