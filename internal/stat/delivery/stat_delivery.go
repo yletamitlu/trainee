@@ -64,8 +64,9 @@ func (sd *StatDelivery) GetStatisticHandler() fasthttp.RequestHandler {
 	return func(ctx *fasthttp.RequestCtx) {
 		since := string(ctx.QueryArgs().Peek("since"))
 		until := string(ctx.QueryArgs().Peek("until"))
+		order := string(ctx.QueryArgs().Peek("param"))
 
-		statistic, err := sd.statUcase.GetStatisticByPeriod(since, until)
+		statistic, err := sd.statUcase.GetStatisticByPeriod(since, until, order)
 		if err != nil {
 			logrus.Info(err)
 			sd.sendResponse(ctx, 500, "internal server error")

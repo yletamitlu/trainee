@@ -38,7 +38,7 @@ func (sr *StatRepos) InsertInto(data *models.Data) error {
 	return nil
 }
 
-func (sr *StatRepos) GetStatistic(since string, until string) ([]*models.Data, error) {
+func (sr *StatRepos) GetStatistic(since string, until string, param string) ([]*models.Data, error) {
 	var dataArray []*models.Data
 
 	sinceDate, err := time.Parse("2006-01-02", since)
@@ -50,10 +50,18 @@ func (sr *StatRepos) GetStatistic(since string, until string) ([]*models.Data, e
 		return nil, err
 	}
 
-	if err := sr.conn.Select(&dataArray,
-		`SELECT * from statistic where date > $1 and date < $2 order by date desc`,
-		sinceDate, untilDate); err != nil {
-		return nil, err
+	if param != "" {
+		if err := sr.conn.Select(&dataArray,
+			`SELECT * from statistic S where S.date > $1 and S.date < $2 order by S.` + param,
+			sinceDate, untilDate); err != nil {
+			return nil, err
+		}
+	} else {
+		if err := sr.conn.Select(&dataArray,
+			`SELECT * from statistic where date > $1 and date < $2 order by date`,
+			sinceDate, untilDate); err != nil {
+			return nil, err
+		}
 	}
 
 	return dataArray, nil

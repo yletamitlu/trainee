@@ -38,8 +38,13 @@ func (su *StatUcase) AddNewStatistic(data *models.Data) error {
 	return nil
 }
 
-func (su *StatUcase) GetStatisticByPeriod(since string, until string) ([]*models.Data, error) {
-	data, err := su.statRepo.GetStatistic(since, until)
+func (su *StatUcase) GetStatisticByPeriod(since string, until string, param string) ([]*models.Data, error) {
+	isValid := su.checkParam(param)
+	if !isValid {
+		param = ""
+	}
+
+	data, err := su.statRepo.GetStatistic(since, until, param)
 	if err != nil {
 		return nil, err
 	}
@@ -52,4 +57,23 @@ func (su *StatUcase) RemoveStatistic() error {
 		return err
 	}
 	return nil
+}
+
+func (su *StatUcase) checkParam(value string) bool {
+	switch value {
+	case "date":
+		return true
+	case "views":
+		return true
+	case "clicks":
+		return true
+	case "cost":
+		return true
+	case "cpc":
+		return true
+	case "cpm":
+		return true
+	default:
+		return false
+	}
 }
